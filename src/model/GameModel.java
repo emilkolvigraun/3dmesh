@@ -31,8 +31,8 @@ public class GameModel extends ApplicationAdapter {
     @Override
     public void create() {
         camera = new PerspectiveCamera(75, getWidth(), getHeight());
-        camera.position.set(0f, 20f, 10f);
-        camera.lookAt(0f, 0f, 0f);
+        camera.position.set(10f, 50f, 10f);
+        camera.lookAt(10f, 0f, 10f);
         camera.near = 0.1f;
         camera.far = 1000f;
         batch = new ModelBatch();
@@ -44,7 +44,7 @@ public class GameModel extends ApplicationAdapter {
 
         Gdx.input.setInputProcessor(new KeyManager(camera));
 
-        terrain = new Terrain(2.0f);        
+        terrain = new Terrain(100.0f);        
         terrain.generateTerrain();
     }
 

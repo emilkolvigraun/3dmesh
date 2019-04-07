@@ -14,11 +14,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -29,7 +26,6 @@ import java.util.Random;
 public class Terrain {
 
     private int w, y;
-    private Mesh mesh;
     private ArrayList<ModelInstance> instances;
     private ModelInstance part;
     private float multiplier;
@@ -72,33 +68,24 @@ public class Terrain {
         ArrayList<Short> indices = new ArrayList<>();
         ArrayList<Float> vertices = new ArrayList<>();
 
-        float x1 = 2f, x2 = 0f, z1 = 2f, z2 = 0f;
+        float x1 = 5f, x2 = 0f, z1 = 5f, z2 = 0f;
 
         Pixmap heatmap = new Pixmap(Gdx.files.getFileHandle("res/terrain/heightmap.png", Files.FileType.Internal));
         Color heatColor = new Color();
         short indice = 0;
         for (int x = 0; x < heatmap.getWidth(); x++) {
             ArrayList<ArrayList<Float>> rows = new ArrayList<>();
+            float yprev5 = -1, yprev4 = -1;
             for (int y = 0; y < heatmap.getHeight(); y++) {
                 ArrayList<Float> currentColumn = new ArrayList<>();
-                float xprev5 = -1, xprev4 = -1, xprev3 = -1, xprev2 = -1, xprev1 = -1, xprev0 = -1;
-                float yprev5 = -1, yprev4 = -1, yprev3 = -1, yprev2 = -1, yprev1 = -1, yprev0 = -1;
+                float xprev5 = -1, xprev3 = -1;
 
                 if (x > 0) {
                     xprev5 = columns.get(x - 1).get(y).get(5);
-                    xprev4 = columns.get(x - 1).get(y).get(4);
                     xprev3 = columns.get(x - 1).get(y).get(3);
-                    xprev2 = columns.get(x - 1).get(y).get(2);
-                    xprev1 = columns.get(x - 1).get(y).get(1);
-                    xprev0 = columns.get(x - 1).get(y).get(0);
-                    if (y > 0) {
-                        yprev5 = columns.get(x - 1).get(y - 1).get(5);
-                        yprev4 = columns.get(x - 1).get(y - 1).get(4);
-                        yprev3 = columns.get(x - 1).get(y - 1).get(3);
-                        yprev2 = columns.get(x - 1).get(y - 1).get(2);
-                        yprev1 = columns.get(x - 1).get(y - 1).get(1);
-                        yprev0 = columns.get(x - 1).get(y - 1).get(0);
-                    }
+                } else {
+                    xprev3 = 0f;
+                    xprev5 = 0f;
                 }
 
                 int heightmap = heatmap.getPixel(x, y);
@@ -114,37 +101,36 @@ public class Terrain {
                     currentHeight /= 750;
                     currentHeight *= multiplier;
                 }
-                
-                float height;
-                if (currentHeight > xprev1){
-                    height = (float) currentHeight;
-                } else {
-                    height = xprev1;
-                }
-                
-                //maqke sure heights fit the octagons
 
+                if (yprev5 == -1) {
+                    yprev5 = (float) currentHeight;
+                    yprev4 = (float) currentHeight;
+                } else if (x > 0 && y == 0){
+                    yprev5 = (float) currentHeight;
+                }
+
+                //maqke sure heights fit the octagons
                 float currentColor = Color.toFloatBits(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), 255);
                 float current2Color = Color.toFloatBits(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), 255);
 
                 //0
                 vertices.add(x2);
-                vertices.add(leftIndex4);
+                vertices.add(xprev5);
                 vertices.add(z2);
                 vertices.add(currentColor);
-                currentColumn.add(leftIndex4);
+                currentColumn.add(xprev5);
                 //1
                 vertices.add(x2);
-                vertices.add(topIndex0);
+                vertices.add(xprev3);
                 vertices.add(z1);
                 vertices.add(currentColor);
-                currentColumn.add(topIndex0);
+                currentColumn.add(xprev3);
                 //2
                 vertices.add(x1);
-                vertices.add((float) currentHeight);
+                vertices.add(yprev5);
                 vertices.add(z2);
                 vertices.add(currentColor);
-                currentColumn.add((float) currentHeight);
+                currentColumn.add(yprev5);
                 //5
                 vertices.add(x1);
                 vertices.add((float) currentHeight);
@@ -153,16 +139,16 @@ public class Terrain {
                 currentColumn.add((float) currentHeight);
                 //4
                 vertices.add(x2);
-                vertices.add(leftIndex5);
+                vertices.add(xprev3);
                 vertices.add(z1);
                 vertices.add(current2Color);
-                currentColumn.add(leftIndex5);
+                currentColumn.add(xprev3);
                 //3
                 vertices.add(x1);
-                vertices.add(topIndex0);
+                vertices.add(yprev5);
                 vertices.add(z2);
                 vertices.add(current2Color);
-                currentColumn.add(topIndex0);
+                currentColumn.add(yprev5);
 
                 int indicePosition = indices.size();
 
@@ -176,17 +162,19 @@ public class Terrain {
                 indices.add(indice--);
                 indices.add(indice--);
 
-                z1 += 2f;
-                z2 += 2f;
+                z1 += 5f;
+                z2 += 5f;
 
                 rows.add(currentColumn);
+                
+                yprev5 = (float) currentHeight;
             }
-            x1 += 2f;
-            x2 += 2f;
-            z1 = 2f;
+            x1 += 5f;
+            x2 += 5f;
+            z1 = 5f;
             z2 = 0;
             columns.add(rows);
-
+            
         }
 
         System.out.println(indices.toString());
