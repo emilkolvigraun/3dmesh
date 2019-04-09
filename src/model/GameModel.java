@@ -39,13 +39,14 @@ public class GameModel extends ApplicationAdapter {
         gameWorld = new GameWorld();
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.7f, 0.7f, 0.7f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 2f, -2.5f, -0.2f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.7f, 0.6f, 0.6f, 1f));
+        environment.add(new DirectionalLight().set(0.9f, 0.5f, 0.5f, 10f, -2.5f, 10f));
 
         Gdx.input.setInputProcessor(new KeyManager(camera));
 
-        terrain = new Terrain(100.0f);        
+        terrain = new Terrain(15f);        
         terrain.generateTerrain();
+        
     }
 
     @Override
@@ -57,6 +58,7 @@ public class GameModel extends ApplicationAdapter {
         camera.update();
         batch.begin(camera);
         batch.render(terrain.getTerrain(), environment);
+        
         //for (WorldObject obj : gameWorld.getWorldObjects()) {
         //     obj.update();
         //    batch.render(obj.getModelInstance(), environment);
